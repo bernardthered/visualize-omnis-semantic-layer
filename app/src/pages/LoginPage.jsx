@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { LayersIcon } from '../components/icons'
 import styles from './LoginPage.module.css'
 
-export default function LoginPage({ onLogin, brandName = 'Omni', logoUrl = '' }) {
+export default function LoginPage({ onValidate, onConfirm, brandName = 'Omni', logoUrl = '' }) {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error,    setError]    = useState('')
@@ -12,15 +12,16 @@ export default function LoginPage({ onLogin, brandName = 'Omni', logoUrl = '' })
   function handleSubmit(e) {
     e.preventDefault()
     setError('')
+
+    const ok = onValidate(username, password)
+    if (!ok) {
+      setError('Incorrect username or password.')
+      return
+    }
+
+    // Credentials valid — show loading state, then redirect after 5 s
     setLoading(true)
-    // Short delay gives visual feedback that something happened
-    setTimeout(() => {
-      const ok = onLogin(username, password)
-      if (!ok) {
-        setError('Incorrect username or password.')
-        setLoading(false)
-      }
-    }, 280)
+    setTimeout(onConfirm, 5000)
   }
 
   return (

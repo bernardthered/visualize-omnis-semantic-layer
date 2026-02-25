@@ -52,15 +52,15 @@ export default function App() {
     link.href = logoUrl || ''
   }, [logoUrl])
 
-  function login(username, password) {
+  function validateLogin(username, password) {
     const storedUser = localStorage.getItem('authUsername') || 'admin'
     const storedPass = localStorage.getItem('authPassword') || 'password'
-    if (username === storedUser && password === storedPass) {
-      localStorage.setItem('isAuthenticated', 'true')
-      setIsAuthenticated(true)
-      return true
-    }
-    return false
+    return username === storedUser && password === storedPass
+  }
+
+  function confirmLogin() {
+    localStorage.setItem('isAuthenticated', 'true')
+    setIsAuthenticated(true)
   }
 
   function logout() {
@@ -70,7 +70,7 @@ export default function App() {
 
   // ── Show login page until authenticated ──
   if (!isAuthenticated) {
-    return <LoginPage onLogin={login} brandName={brandName} logoUrl={logoUrl} />
+    return <LoginPage onValidate={validateLogin} onConfirm={confirmLogin} brandName={brandName} logoUrl={logoUrl} />
   }
 
   return (
