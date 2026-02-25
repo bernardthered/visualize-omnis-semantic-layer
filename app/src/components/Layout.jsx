@@ -6,6 +6,7 @@ export default function Layout({ children, darkMode, setDarkMode, collapsed, set
   const location = useLocation()
   const isEmbed = location.pathname.startsWith('/semantic-layer')
                || location.pathname === '/dashboard'
+               || location.pathname === '/ai-analyst'
 
   return (
     <div className={styles.layout}>
