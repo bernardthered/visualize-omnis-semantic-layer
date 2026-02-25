@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import {
   HomeIcon, BarChartIcon, FileTextIcon, UsersIcon, SettingsIcon,
@@ -23,13 +23,17 @@ const NAV = [
   },
 ]
 
-export default function Sidebar({ collapsed, setCollapsed, darkMode, setDarkMode, brandName = 'Omni' }) {
+export default function Sidebar({ collapsed, setCollapsed, darkMode, setDarkMode, brandName = 'Omni', logoUrl = '' }) {
   const location = useLocation()
+  const [imgError, setImgError] = useState(false)
   const [openMenus, setOpenMenus] = useState(() => {
     // Auto-open semantic-layer submenu if on that path
     if (location.pathname.startsWith('/semantic-layer')) return new Set(['semantic-layer'])
     return new Set()
   })
+
+  // Reset error state whenever the URL changes so the new URL gets a fresh load attempt
+  useEffect(() => { setImgError(false) }, [logoUrl])
 
   function toggleMenu(id) {
     if (collapsed) {
@@ -56,7 +60,10 @@ export default function Sidebar({ collapsed, setCollapsed, darkMode, setDarkMode
       <div className={styles.logo}>
         {!collapsed && (
           <div className={styles.logoMark}>
-            <LayersIcon />
+            {logoUrl && !imgError
+              ? <img src={logoUrl} alt="" className={styles.logoImg} onError={() => setImgError(true)} />
+              : <LayersIcon />
+            }
           </div>
         )}
         {!collapsed && <span className={styles.logoText}>{brandName}</span>}

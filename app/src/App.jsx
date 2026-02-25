@@ -15,6 +15,9 @@ export default function App() {
   const [brandName, setBrandName] = useState(() =>
     localStorage.getItem('brandName') || 'Omni'
   )
+  const [logoUrl, setLogoUrl] = useState(() =>
+    localStorage.getItem('logoUrl') || ''
+  )
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light')
@@ -25,6 +28,10 @@ export default function App() {
     localStorage.setItem('brandName', brandName)
   }, [brandName])
 
+  useEffect(() => {
+    localStorage.setItem('logoUrl', logoUrl)
+  }, [logoUrl])
+
   return (
     <BrowserRouter>
       <Layout
@@ -33,6 +40,7 @@ export default function App() {
         collapsed={sidebarCollapsed}
         setCollapsed={setSidebarCollapsed}
         brandName={brandName}
+        logoUrl={logoUrl}
       >
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
@@ -53,7 +61,10 @@ export default function App() {
               description="Manage team members, roles, and access permissions." />
           } />
           <Route path="/settings" element={
-            <SettingsPage brandName={brandName} setBrandName={setBrandName} />
+            <SettingsPage
+              brandName={brandName} setBrandName={setBrandName}
+              logoUrl={logoUrl}     setLogoUrl={setLogoUrl}
+            />
           } />
           <Route path="/semantic-layer/treemap" element={<TreeMapPage />} />
           <Route path="/semantic-layer/tree" element={<CollapsibleTreePage />} />
