@@ -9,6 +9,7 @@ import SettingsPage from './pages/SettingsPage'
 import TreeMapPage from './pages/TreeMapPage'
 import CollapsibleTreePage from './pages/CollapsibleTreePage'
 import SunburstPage from './pages/SunburstPage'
+import AiAnalystPage from './pages/AiAnalystPage'
 
 export default function App() {
   const [darkMode, setDarkMode] = useState(() => {
@@ -104,6 +105,7 @@ export default function App() {
               logoUrl={logoUrl}     setLogoUrl={setLogoUrl}
             />
           } />
+          <Route path="/ai-analyst" element={<AiAnalystPage darkMode={darkMode} />} />
           <Route path="/semantic-layer/treemap"   element={<TreeMapPage />} />
           <Route path="/semantic-layer/tree"      element={<CollapsibleTreePage />} />
           <Route path="/semantic-layer/sunburst"  element={<SunburstPage />} />

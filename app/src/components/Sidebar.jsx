@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import {
   HomeIcon, BarChartIcon, FileTextIcon, UsersIcon, SettingsIcon,
-  LayersIcon, GridIcon, TreeIcon, SunburstIcon,
+  LayersIcon, GridIcon, TreeIcon, SunburstIcon, AiChatIcon,
   ChevronLeftIcon, ChevronRightIcon, ChevronDownIcon,
   MoonIcon, SunIcon, LogOutIcon,
 } from './icons'
@@ -13,7 +13,8 @@ const NAV = [
   { id: 'analytics', label: 'Analytics', icon: BarChartIcon,  path: '/analytics' },
   { id: 'reports',   label: 'Reports',   icon: FileTextIcon,  path: '/reports'   },
   { id: 'users',     label: 'Users',     icon: UsersIcon,     path: '/users'     },
-  { id: 'settings',  label: 'Settings',  icon: SettingsIcon,  path: '/settings'  },
+  { id: 'settings',     label: 'Settings',     icon: SettingsIcon, path: '/settings'    },
+  { id: 'ai-analyst',   label: 'AI Analyst',   icon: AiChatIcon,   path: '/ai-analyst'  },
   {
     id: 'semantic-layer', label: 'Semantic Layer', icon: LayersIcon,
     children: [

@@ -113,6 +113,15 @@ export const SunIcon = () => (
   </svg>
 )
 
+export const AiChatIcon = () => (
+  <svg {...props()}>
+    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+    <circle cx="9"  cy="10" r="1" fill="currentColor" stroke="none"/>
+    <circle cx="12" cy="10" r="1" fill="currentColor" stroke="none"/>
+    <circle cx="15" cy="10" r="1" fill="currentColor" stroke="none"/>
+  </svg>
+)
+
 export const MenuIcon = () => (
   <svg {...props()}>
     <line x1="3" y1="6"  x2="21" y2="6"/>

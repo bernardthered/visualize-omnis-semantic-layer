@@ -1,6 +1,6 @@
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
-import { embedSsoDashboard } from '@omni-co/embed'
+import { embedSsoDashboard, embedSsoContentDiscovery } from '@omni-co/embed'
 
 // Vite server plugin that exposes a local-only API endpoint for generating
 // signed Omni embed URLs.  The secret stays in Node — it never reaches the
@@ -37,14 +37,19 @@ function omniEmbedPlugin() {
             return
           }
 
-          const iframeUrl = await embedSsoDashboard({
-            contentId,
-            externalId:       env.OMNI_EMBED_EXTERNAL_ID || 'embed-user',
-            name:             env.OMNI_EMBED_NAME         || 'Embed User',
-            host:             env.OMNI_EMBED_HOST,
+          const sharedProps = {
+            externalId: env.OMNI_EMBED_EXTERNAL_ID || 'embed-user',
+            name:       env.OMNI_EMBED_NAME         || 'Embed User',
+            host:       env.OMNI_EMBED_HOST,
             secret,
             prefersDark,
-          })
+          }
+
+          // /chat/<uuid> paths use embedSsoContentDiscovery (raw path, no prefix);
+          // everything else uses embedSsoDashboard (/dashboards/<id>).
+          const iframeUrl = contentId.startsWith('/chat/')
+            ? await embedSsoContentDiscovery({ ...sharedProps, path: contentId })
+            : await embedSsoDashboard({ ...sharedProps, contentId })
 
           res.setHeader('Content-Type', 'application/json')
           res.end(JSON.stringify({ url: iframeUrl }))
