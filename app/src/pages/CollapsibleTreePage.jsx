@@ -2,12 +2,13 @@ import { useEffect, useRef } from 'react'
 import * as d3 from 'd3'
 import './CollapsibleTreePage.css'
 
-const DIM_COLOR       = '#1d4ed8'
-const MEAS_COLOR      = '#047857'
-const TOPIC_COLOR     = '#7c3aed'
-const JOIN_COLOR      = '#d97706'
-const BASE_VIEW_COLOR = '#0e7490'
-const JOIN_REF_COLOR  = '#5b21b6'
+const DIM_COLOR        = '#1d4ed8'
+const MEAS_COLOR       = '#047857'
+const TOPIC_COLOR      = '#7c3aed'
+const TOPIC_GROUP_COLOR = '#0891b2'
+const JOIN_COLOR       = '#d97706'
+const BASE_VIEW_COLOR  = '#0e7490'
+const JOIN_REF_COLOR   = '#5b21b6'
 const SCHEMA_COLORS   = d3.schemeTableau10
 
 const DX       = 20
@@ -66,6 +67,7 @@ export default function CollapsibleTreePage() {
           if (dt.name === 'measures')        return MEAS_COLOR
           const cat = dt._category
           if (cat === 'topics') {
+            if (dt._group) return TOPIC_GROUP_COLOR
             const depth = d.depth !== undefined ? d.depth : 0
             return d3.color(TOPIC_COLOR).darker([0,0,0.3,0.7,1.1][Math.min(depth,4)]).formatHex()
           }
@@ -129,7 +131,11 @@ export default function CollapsibleTreePage() {
         topicsNodeRef.current = topicsNode
 
         // ── Build hierarchy ───────────────────────────────
-        const root = d3.hierarchy(rawData)
+        if (!topicsNode) {
+          chartEl.innerHTML = '<p style="padding:20px;color:#f87171">No topics data found in treemap.json</p>'
+          return
+        }
+        const root = d3.hierarchy(topicsNode)
         let uid = 0
         root.descendants().forEach(d => { d.id = ++uid; d.x0 = 0; d.y0 = 0 })
         root.descendants().forEach(d => {
@@ -158,6 +164,16 @@ export default function CollapsibleTreePage() {
           if (d.depth === 1) return 5
           if (d._children || d.children) return 4
           return 3
+        }
+        function nodeSymbolPath(d) {
+          const r    = circleR(d)
+          const area = Math.PI * r * r
+          if (d.data._group)
+            return d3.symbol(d3.symbolDiamond, area * 2.5)()
+          return d3.symbol(d3.symbolCircle, area)()
+        }
+        function nodeLabelX(d) {
+          return d.data._group ? circleR(d) * 1.7 + 6 : circleR(d) + 6
         }
         function labelText(d) {
           const raw  = d.data.label || d.data.name || ''
@@ -210,20 +226,20 @@ export default function CollapsibleTreePage() {
             .attr('class', 'tree-node')
             .attr('transform', `translate(${source.y0},${source.x0})`)
             .attr('fill-opacity', 0).attr('stroke-opacity', 0)
-          nodeEnter.append('circle')
+          nodeEnter.append('path').attr('class', 'node-shape')
           nodeEnter.append('text').attr('class', 'label-bg')
           nodeEnter.append('text').attr('class', 'label-fg')
 
           const nodeMerge = nodeEnter.merge(node)
           nodeMerge.classed('tree-node--leaf', d => !d.children && !d._children)
-          nodeMerge.select('circle')
-            .attr('r', circleR).attr('fill', circleFill).attr('stroke', circleStroke)
+          nodeMerge.select('path.node-shape')
+            .attr('d', nodeSymbolPath).attr('fill', circleFill).attr('stroke', circleStroke)
           nodeMerge.select('text.label-bg')
-            .attr('x', d => circleR(d) + 6).attr('fill', 'none')
+            .attr('x', nodeLabelX).attr('fill', 'none')
             .attr('stroke', '#0f1117').attr('stroke-width', 3).attr('stroke-linejoin', 'round')
             .attr('font-weight', labelWeight).attr('font-size', labelSize).text(labelText)
           nodeMerge.select('text.label-fg')
-            .attr('x', d => circleR(d) + 6).attr('fill', labelFill)
+            .attr('x', nodeLabelX).attr('fill', labelFill)
             .attr('font-weight', labelWeight).attr('font-size', labelSize).text(labelText)
 
           nodeMerge
@@ -314,12 +330,20 @@ export default function CollapsibleTreePage() {
 
         // ── Legend ────────────────────────────────────────
         function buildLegend() {
-          const schemaItems = schemas.map(s =>
+          const groupDiamond = d3.symbol(d3.symbolDiamond, 60)()
+          const topicCircle  = d3.symbol(d3.symbolCircle,  50)()
+          const schemaItems  = schemas.map(s =>
             `<div class="legend-item"><div class="legend-dot" style="background:${schemaColor(s)}"></div><span>${s}</span></div>`
           ).join('')
           legendRef.current.innerHTML =
-            `<div class="legend-item"><div class="legend-dot" style="background:${TOPIC_COLOR}"></div><span>topics</span></div>` +
-            `<div class="legend-item"><div class="legend-dot" style="background:${JOIN_COLOR}"></div><span>joins</span></div>` +
+            `<div class="legend-item">` +
+              `<svg width="12" height="12" style="flex-shrink:0;overflow:visible">` +
+                `<path transform="translate(6,6)" d="${groupDiamond}" fill="${TOPIC_GROUP_COLOR}" stroke="${d3.color(TOPIC_GROUP_COLOR).brighter(0.5).formatHex()}" stroke-width="1.5"/>` +
+              `</svg><span>topic group</span></div>` +
+            `<div class="legend-item">` +
+              `<svg width="10" height="10" style="flex-shrink:0;overflow:visible">` +
+                `<path transform="translate(5,5)" d="${topicCircle}" fill="${TOPIC_COLOR}" stroke="${d3.color(TOPIC_COLOR).brighter(0.5).formatHex()}" stroke-width="1.5"/>` +
+              `</svg><span>topic</span></div>` +
             `<span class="tree-sep">|</span>` + schemaItems + `<span class="tree-sep">|</span>` +
             `<div class="legend-item"><div class="legend-dot" style="background:${BASE_VIEW_COLOR}"></div><span>base view</span></div>` +
             `<div class="legend-item"><div class="legend-dot" style="background:${JOIN_REF_COLOR}"></div><span>join ref</span></div>` +
@@ -358,35 +382,17 @@ export default function CollapsibleTreePage() {
   }
 
   function handleExpandTopics() {
-    const root       = rootRef.current
-    const update     = updateFnRef.current
-    const topicsNode = topicsNodeRef.current
+    const root   = rootRef.current
+    const update = updateFnRef.current
     if (!root || !update) return
-    if (topicsNode) {
-      const topicsH = root.descendants().find(d => d.data === topicsNode)
-      if (topicsH) {
-        if (!topicsH.children && topicsH._children) {
-          topicsH.children = topicsH._children; topicsH._children = null
-        }
-        topicsH.children.forEach(child => {
-          if (child.data._group) {
-            // Expand the group node, then expand each topic within it
-            if (!child.children && child._children) {
-              child.children = child._children; child._children = null
-            }
-            ;(child.children || []).forEach(topicH => {
-              if (!topicH.children && topicH._children) {
-                topicH.children = topicH._children; topicH._children = null
-              }
-            })
-          } else {
-            if (!child.children && child._children) {
-              child.children = child._children; child._children = null
-            }
-          }
-        })
+    // Expand the root, all topic groups, and all individual topics (identified
+    // by having a base_view property), but leave join-ref children collapsed.
+    root.descendants().forEach(d => {
+      if ((d.depth === 0 || d.data._group || d.data.base_view !== undefined) && d._children) {
+        d.children  = d._children
+        d._children = null
       }
-    }
+    })
     update(root)
   }
 

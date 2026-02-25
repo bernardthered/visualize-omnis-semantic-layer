@@ -20,7 +20,7 @@ const NAV = [
     id: 'semantic-layer', label: 'Semantic Layer', icon: LayersIcon,
     children: [
       { id: 'treemap',   label: 'Tree Map',        icon: GridIcon,     path: '/semantic-layer/treemap'   },
-      { id: 'tree',      label: 'Collapsible Tree', icon: TreeIcon,     path: '/semantic-layer/tree'      },
+      { id: 'tree',      label: 'Topic Tree',       icon: TreeIcon,     path: '/semantic-layer/tree'      },
       { id: 'sunburst',  label: 'Sunburst',          icon: SunburstIcon, path: '/semantic-layer/sunburst'  },
     ],
   },

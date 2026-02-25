@@ -6,7 +6,7 @@ const QUICK_LINKS = [
   { label: 'Dashboard',         path: '/dashboard',                icon: LayoutIcon,   desc: 'Embedded analytics overview'              },
   { label: 'AI Analyst',        path: '/ai-analyst',               icon: AiChatIcon,   desc: 'Chat with your data in natural language'  },
   { label: 'Tree Map',          path: '/semantic-layer/treemap',   icon: GridIcon,     desc: 'Visualize the semantic layer as a treemap' },
-  { label: 'Collapsible Tree',  path: '/semantic-layer/tree',      icon: TreeIcon,     desc: 'Navigate the semantic model as a tree'    },
+  { label: 'Topic Tree',        path: '/semantic-layer/tree',      icon: TreeIcon,     desc: 'Navigate topics as a collapsible tree'    },
   { label: 'Sunburst',          path: '/semantic-layer/sunburst',  icon: SunburstIcon, desc: 'Zoomable sunburst chart'                  },
 ]
 
