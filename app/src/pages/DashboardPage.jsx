@@ -1,0 +1,48 @@
+import { useState, useEffect } from 'react'
+import styles from './DashboardPage.module.css'
+
+export default function DashboardPage({ darkMode }) {
+  const [iframeUrl, setIframeUrl] = useState(null)
+  const [error,     setError]     = useState(null)
+
+  useEffect(() => {
+    setIframeUrl(null)
+    setError(null)
+
+    const prefersDark = darkMode ? 'true' : 'false'
+    fetch(`/api/embed-url?contentId=8768d51b&prefersDark=${prefersDark}`)
+      .then(r => r.json())
+      .then(({ url, error }) => {
+        if (error) setError(error)
+        else setIframeUrl(url)
+      })
+      .catch(err => setError(err.message))
+  }, [darkMode])
+
+  if (error) {
+    return (
+      <div className={`${styles.status} ${styles.error}`}>
+        <p className={styles.errorTitle}>Failed to load dashboard</p>
+        <p className={styles.errorDetail}>{error}</p>
+      </div>
+    )
+  }
+
+  if (!iframeUrl) {
+    return (
+      <div className={styles.status}>
+        <div className={styles.spinner} />
+        <p>Loading dashboard…</p>
+      </div>
+    )
+  }
+
+  return (
+    <iframe
+      src={iframeUrl}
+      className={styles.iframe}
+      title="Dashboard"
+      allow="clipboard-write"
+    />
+  )
+}

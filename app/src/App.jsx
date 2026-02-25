@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
 import LoginPage from './pages/LoginPage'
+import DashboardPage from './pages/DashboardPage'
 import PlaceholderPage from './pages/PlaceholderPage'
 import SettingsPage from './pages/SettingsPage'
 import TreeMapPage from './pages/TreeMapPage'
@@ -70,10 +71,7 @@ export default function App() {
       >
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={
-            <PlaceholderPage title="Dashboard" icon="dashboard"
-              description="Overview of your key metrics and recent activity." />
-          } />
+          <Route path="/dashboard" element={<DashboardPage darkMode={darkMode} />} />
           <Route path="/analytics" element={
             <PlaceholderPage title="Analytics" icon="analytics"
               description="Explore usage trends, query performance, and data insights." />

@@ -5,6 +5,7 @@ import styles from './Layout.module.css'
 export default function Layout({ children, darkMode, setDarkMode, collapsed, setCollapsed, brandName, logoUrl, logout }) {
   const location = useLocation()
   const isEmbed = location.pathname.startsWith('/semantic-layer')
+               || location.pathname === '/dashboard'
 
   return (
     <div className={styles.layout}>

@@ -1,0 +1,56 @@
+/* Iframe fills the entire content area */
+.iframe {
+  width: 100%;
+  flex: 1;
+  border: none;
+  display: block;
+}
+
+/* Shared status container (loading + error) */
+.status {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--text-secondary, #64748b);
+  font-size: 14px;
+}
+
+/* Loading spinner */
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(124, 140, 248, 0.2);
+  border-top-color: #7c8cf8;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Error state */
+.error {
+  color: #f87171;
+}
+
+.errorTitle {
+  font-weight: 600;
+  font-size: 15px;
+  margin: 0;
+}
+
+.errorDetail {
+  font-size: 12px;
+  color: #64748b;
+  max-width: 480px;
+  text-align: center;
+  margin: 0;
+  padding: 8px 16px;
+  background: rgba(248, 113, 113, 0.08);
+  border: 1px solid rgba(248, 113, 113, 0.2);
+  border-radius: 6px;
+}
