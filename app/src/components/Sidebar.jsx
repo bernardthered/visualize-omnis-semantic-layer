@@ -9,14 +9,13 @@ import {
 import styles from './Sidebar.module.css'
 
 const NAV = [
-  { id: 'home',      label: 'Home',      icon: HomeIcon,      path: '/home'      },
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutIcon,    path: '/dashboard' },
-  { id: 'analytics', label: 'Analytics', icon: BarChartIcon,  path: '/analytics' },
-  { id: 'reports',   label: 'Reports',   icon: FileTextIcon,  path: '/reports'   },
-  { id: 'users',     label: 'Users',     icon: UsersIcon,     path: '/users'     },
-  { id: 'settings',     label: 'Settings',     icon: SettingsIcon, path: '/settings'    },
-  { id: 'ai-analyst',   label: 'AI Analyst',   icon: AiChatIcon,    path: '/ai-analyst'  },
-  { id: 'workbook',     label: 'Workbook',     icon: WorkbookIcon,  path: '/workbook'    },
+  { id: 'home',        label: 'Home',       icon: HomeIcon,     path: '/home'        },
+  { id: 'ai-analyst',  label: 'AI Analyst', icon: AiChatIcon,   path: '/ai-analyst'  },
+  { id: 'dashboard',   label: 'Dashboard',  icon: LayoutIcon,   path: '/dashboard'   },
+  { id: 'analytics',   label: 'Analytics',  icon: BarChartIcon, path: '/analytics'   },
+  { id: 'reports',     label: 'Reports',    icon: FileTextIcon, path: '/reports'     },
+  { id: 'users',       label: 'Users',      icon: UsersIcon,    path: '/users'       },
+  { id: 'workbook',    label: 'Workbook',   icon: WorkbookIcon, path: '/workbook'    },
   {
     id: 'semantic-layer', label: 'Semantic Layer', icon: LayersIcon,
     children: [
@@ -160,6 +159,17 @@ export default function Sidebar({ collapsed, setCollapsed, darkMode, setDarkMode
             </span>
           </button>
         </div>
+
+        <NavLink
+          to="/settings"
+          className={({ isActive }) =>
+            `${styles.navItem} ${isActive ? styles.active : ''} ${collapsed ? styles.iconOnly : ''}`
+          }
+          title={collapsed ? 'Settings' : undefined}
+        >
+          <span className={styles.navIcon}><SettingsIcon /></span>
+          {!collapsed && <span className={styles.navLabel}>Settings</span>}
+        </NavLink>
 
         <button
           className={`${styles.signOutBtn} ${collapsed ? styles.iconOnly : ''}`}
