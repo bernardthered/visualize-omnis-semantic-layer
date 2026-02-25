@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import { embedSsoDashboard } from '@omni-co/embed'
 
@@ -6,8 +6,20 @@ import { embedSsoDashboard } from '@omni-co/embed'
 // signed Omni embed URLs.  The secret stays in Node — it never reaches the
 // browser bundle or network responses beyond the signed URL itself.
 function omniEmbedPlugin() {
+  // loadEnv is called in the config hook (before configureServer) so that all
+  // .env.local variables — including non-VITE_-prefixed ones — are available.
+  // process.env alone is NOT sufficient: Vite only injects VITE_-prefixed vars
+  // into the client bundle; server-side plugin code must use loadEnv directly.
+  let env = {}
+
   return {
     name: 'omni-embed-api',
+
+    config(_, { mode }) {
+      // '' prefix → load ALL variables, not just VITE_-prefixed ones
+      env = loadEnv(mode, process.cwd(), '')
+    },
+
     configureServer(server) {
       server.middlewares.use('/api/embed-url', async (req, res) => {
         try {
@@ -15,7 +27,7 @@ function omniEmbedPlugin() {
           const contentId   = qs.get('contentId')   || '8768d51b'
           const prefersDark = qs.get('prefersDark') || 'system'
 
-          const secret = process.env.OMNI_EMBED_SECRET
+          const secret = env.OMNI_EMBED_SECRET
           if (!secret) {
             res.statusCode = 500
             res.setHeader('Content-Type', 'application/json')
@@ -27,9 +39,9 @@ function omniEmbedPlugin() {
 
           const iframeUrl = await embedSsoDashboard({
             contentId,
-            externalId:       process.env.OMNI_EMBED_EXTERNAL_ID || 'embed-user',
-            name:             process.env.OMNI_EMBED_NAME         || 'Embed User',
-            host:             process.env.OMNI_EMBED_HOST,
+            externalId:       env.OMNI_EMBED_EXTERNAL_ID || 'embed-user',
+            name:             env.OMNI_EMBED_NAME         || 'Embed User',
+            host:             env.OMNI_EMBED_HOST,
             secret,
             prefersDark,
           })
