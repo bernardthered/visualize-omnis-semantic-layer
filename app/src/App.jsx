@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
+import TitleUpdater from './components/TitleUpdater'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import PlaceholderPage from './pages/PlaceholderPage'
@@ -37,6 +38,17 @@ export default function App() {
     localStorage.setItem('logoUrl', logoUrl)
   }, [logoUrl])
 
+  // ── Favicon: use logoUrl when set, clear it when not ──
+  useEffect(() => {
+    let link = document.querySelector("link[rel='icon']")
+    if (!link) {
+      link = document.createElement('link')
+      link.rel = 'icon'
+      document.head.appendChild(link)
+    }
+    link.href = logoUrl || ''
+  }, [logoUrl])
+
   function login(username, password) {
     const storedUser = localStorage.getItem('authUsername') || 'admin'
     const storedPass = localStorage.getItem('authPassword') || 'password'
@@ -60,6 +72,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      <TitleUpdater brandName={brandName} />
       <Layout
         darkMode={darkMode}
         setDarkMode={setDarkMode}
