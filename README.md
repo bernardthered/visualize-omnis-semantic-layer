@@ -1,6 +1,18 @@
+# Overview
+This repo currently holds two separate but connected projects:
+
+ 1. A portal for embedding Omni that could lend ideas for improvements to Gleam
+ 1. An experiment in visualizing Omni's semantic layer. This is served from the above portal.
+
+ The two will likely be separated in the future if either move forward.
+
+# Gleam Prime PoC
+
+This includes some niceties over Gleam - rebrandability, non-Omni content, collapsible side bar nav, better UX on login page.
+
 # Visualize Omni's Semantic Layer
 
-An interactive D3 treemap for exploring an [Omni](https://omni.co) model's semantic layer — topics, joins, views, and fields.
+Interactive D3 visualizations for exploring an [Omni](https://omni.co) model's semantic layer — topics, joins, views, and fields.
 
 ## Structure
 
@@ -26,9 +38,7 @@ pip install pyyaml
 python parse_omni_yaml.py --root /path/to/omni --output treemap.json
 ```
 
-### 2. Serve and open
+### 2. Run the server to serve them
 
-```bash
-python3 -m http.server 8766
-open http://localhost:8766/treemap.html
-```
+From the app directory:
+```npm run vite```
