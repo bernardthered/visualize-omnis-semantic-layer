@@ -23,7 +23,7 @@ const NAV = [
   },
 ]
 
-export default function Sidebar({ collapsed, setCollapsed, darkMode, setDarkMode }) {
+export default function Sidebar({ collapsed, setCollapsed, darkMode, setDarkMode, brandName = 'Omni' }) {
   const location = useLocation()
   const [openMenus, setOpenMenus] = useState(() => {
     // Auto-open semantic-layer submenu if on that path
@@ -59,7 +59,7 @@ export default function Sidebar({ collapsed, setCollapsed, darkMode, setDarkMode
             <LayersIcon />
           </div>
         )}
-        {!collapsed && <span className={styles.logoText}>Omni</span>}
+        {!collapsed && <span className={styles.logoText}>{brandName}</span>}
         <button
           className={styles.collapseBtn}
           onClick={() => setCollapsed(c => !c)}

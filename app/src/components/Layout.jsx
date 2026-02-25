@@ -2,7 +2,7 @@ import { useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import styles from './Layout.module.css'
 
-export default function Layout({ children, darkMode, setDarkMode, collapsed, setCollapsed }) {
+export default function Layout({ children, darkMode, setDarkMode, collapsed, setCollapsed, brandName }) {
   const location = useLocation()
   const isEmbed = location.pathname.startsWith('/semantic-layer')
 
@@ -13,6 +13,7 @@ export default function Layout({ children, darkMode, setDarkMode, collapsed, set
         setCollapsed={setCollapsed}
         darkMode={darkMode}
         setDarkMode={setDarkMode}
+        brandName={brandName}
       />
       <div className={styles.body}>
         <main className={`${styles.main} ${isEmbed ? styles.mainEmbed : ''}`}>

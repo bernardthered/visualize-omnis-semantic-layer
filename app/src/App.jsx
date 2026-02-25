@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
 import PlaceholderPage from './pages/PlaceholderPage'
+import SettingsPage from './pages/SettingsPage'
 import TreeMapPage from './pages/TreeMapPage'
 import CollapsibleTreePage from './pages/CollapsibleTreePage'
 
@@ -11,11 +12,18 @@ export default function App() {
     return stored !== null ? stored === 'true' : true
   })
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [brandName, setBrandName] = useState(() =>
+    localStorage.getItem('brandName') || 'Omni'
+  )
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light')
     localStorage.setItem('darkMode', darkMode)
   }, [darkMode])
+
+  useEffect(() => {
+    localStorage.setItem('brandName', brandName)
+  }, [brandName])
 
   return (
     <BrowserRouter>
@@ -24,6 +32,7 @@ export default function App() {
         setDarkMode={setDarkMode}
         collapsed={sidebarCollapsed}
         setCollapsed={setSidebarCollapsed}
+        brandName={brandName}
       >
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
@@ -44,8 +53,7 @@ export default function App() {
               description="Manage team members, roles, and access permissions." />
           } />
           <Route path="/settings" element={
-            <PlaceholderPage title="Settings" icon="settings"
-              description="Configure your workspace, connections, and preferences." />
+            <SettingsPage brandName={brandName} setBrandName={setBrandName} />
           } />
           <Route path="/semantic-layer/treemap" element={<TreeMapPage />} />
           <Route path="/semantic-layer/tree" element={<CollapsibleTreePage />} />
