@@ -12,14 +12,16 @@ export default function AiAnalystPage({ darkMode }) {
     setIframeUrl(null)
     setError(null)
 
+    const controller = new AbortController()
     const prefersDark = darkMode ? 'true' : 'false'
-    fetch(`/api/embed-url?contentId=${encodeURIComponent(contentId)}&prefersDark=${prefersDark}`)
+    fetch(`/api/embed-url?contentId=${encodeURIComponent(contentId)}&prefersDark=${prefersDark}`, { signal: controller.signal })
       .then(r => r.json())
       .then(({ url, error }) => {
         if (error) setError(error)
         else setIframeUrl(url)
       })
-      .catch(err => setError(err.message))
+      .catch(err => { if (err.name !== 'AbortError') setError(err.message) })
+    return () => controller.abort()
   }, [contentId, darkMode])
 
   if (error) {

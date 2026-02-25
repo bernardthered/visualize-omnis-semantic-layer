@@ -21,7 +21,7 @@ export default function LoginPage({ onValidate, onConfirm, brandName = 'Omni', l
 
     // Credentials valid — show loading state, then redirect after 5 s
     setLoading(true)
-    setTimeout(onConfirm, 5000)
+    setTimeout(onConfirm, 3000)
   }
 
   return (

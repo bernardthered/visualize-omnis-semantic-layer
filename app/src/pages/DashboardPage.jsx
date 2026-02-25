@@ -9,14 +9,16 @@ export default function DashboardPage({ darkMode }) {
     setIframeUrl(null)
     setError(null)
 
+    const controller = new AbortController()
     const prefersDark = darkMode ? 'true' : 'false'
-    fetch(`/api/embed-url?contentId=8768d51b&prefersDark=${prefersDark}`)
+    fetch(`/api/embed-url?contentId=8768d51b&prefersDark=${prefersDark}`, { signal: controller.signal })
       .then(r => r.json())
       .then(({ url, error }) => {
         if (error) setError(error)
         else setIframeUrl(url)
       })
-      .catch(err => setError(err.message))
+      .catch(err => { if (err.name !== 'AbortError') setError(err.message) })
+    return () => controller.abort()
   }, [darkMode])
 
   if (error) {
