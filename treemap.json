@@ -5,6 +5,73 @@
       "name": "topics",
       "children": [
         {
+          "name": "Orders & Fulfillment",
+          "label": "Orders & Fulfillment",
+          "_group": true,
+          "children": [
+            {
+              "name": "ecomm__distribution_centers",
+              "label": "Distribution Centers",
+              "base_view": "ecomm__distribution_centers",
+              "children": [
+                {
+                  "name": "ecomm__distribution_centers",
+                  "value": 1,
+                  "ref_type": "base_view"
+                },
+                {
+                  "name": "ecomm__products",
+                  "value": 1,
+                  "ref_type": "join"
+                },
+                {
+                  "name": "ecomm__inventory_items",
+                  "value": 1,
+                  "ref_type": "join"
+                }
+              ]
+            },
+            {
+              "name": "ecomm__order_items",
+              "label": "Order Items",
+              "base_view": "ecomm__order_items",
+              "children": [
+                {
+                  "name": "ecomm__order_items",
+                  "value": 1,
+                  "ref_type": "base_view"
+                },
+                {
+                  "name": "ecomm__users",
+                  "value": 1,
+                  "ref_type": "join"
+                },
+                {
+                  "name": "ecomm__inventory_items",
+                  "value": 1,
+                  "ref_type": "join"
+                },
+                {
+                  "name": "ecomm__products",
+                  "value": 1,
+                  "ref_type": "join"
+                }
+              ],
+              "description": "Detail on historical customer purchases",
+              "display_order": 0,
+              "default_filters": {
+                "ecomm__order_items.status": {
+                  "not": [
+                    "Returned",
+                    "Cancelled"
+                  ]
+                }
+              },
+              "ai_context_chars": 847
+            }
+          ]
+        },
+        {
           "name": "analytics_dev_ecomm__patients",
           "label": "Patients",
           "base_view": "analytics_dev_ecomm__patients",
@@ -31,55 +98,6 @@
             },
             {
               "name": "analytics_dev_ecomm__procedures",
-              "value": 1,
-              "ref_type": "join"
-            }
-          ]
-        },
-        {
-          "name": "ecomm__distribution_centers",
-          "label": "Distribution Centers",
-          "base_view": "ecomm__distribution_centers",
-          "children": [
-            {
-              "name": "ecomm__distribution_centers",
-              "value": 1,
-              "ref_type": "base_view"
-            },
-            {
-              "name": "ecomm__products",
-              "value": 1,
-              "ref_type": "join"
-            },
-            {
-              "name": "ecomm__inventory_items",
-              "value": 1,
-              "ref_type": "join"
-            }
-          ]
-        },
-        {
-          "name": "ecomm__order_items",
-          "label": "Order Items",
-          "base_view": "ecomm__order_items",
-          "children": [
-            {
-              "name": "ecomm__order_items",
-              "value": 1,
-              "ref_type": "base_view"
-            },
-            {
-              "name": "ecomm__users",
-              "value": 1,
-              "ref_type": "join"
-            },
-            {
-              "name": "ecomm__inventory_items",
-              "value": 1,
-              "ref_type": "join"
-            },
-            {
-              "name": "ecomm__products",
               "value": 1,
               "ref_type": "join"
             }

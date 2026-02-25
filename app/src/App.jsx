@@ -8,6 +8,7 @@ import PlaceholderPage from './pages/PlaceholderPage'
 import SettingsPage from './pages/SettingsPage'
 import TreeMapPage from './pages/TreeMapPage'
 import CollapsibleTreePage from './pages/CollapsibleTreePage'
+import SunburstPage from './pages/SunburstPage'
 
 export default function App() {
   const [darkMode, setDarkMode] = useState(() => {
@@ -103,8 +104,9 @@ export default function App() {
               logoUrl={logoUrl}     setLogoUrl={setLogoUrl}
             />
           } />
-          <Route path="/semantic-layer/treemap" element={<TreeMapPage />} />
-          <Route path="/semantic-layer/tree" element={<CollapsibleTreePage />} />
+          <Route path="/semantic-layer/treemap"   element={<TreeMapPage />} />
+          <Route path="/semantic-layer/tree"      element={<CollapsibleTreePage />} />
+          <Route path="/semantic-layer/sunburst"  element={<SunburstPage />} />
         </Routes>
       </Layout>
     </BrowserRouter>

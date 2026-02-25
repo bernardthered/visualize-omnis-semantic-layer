@@ -136,6 +136,16 @@ export const EyeIcon = () => (
   </svg>
 )
 
+export const SunburstIcon = () => (
+  <svg {...props()}>
+    <circle cx="12" cy="12" r="3"/>
+    <path d="M12 2a10 10 0 0 1 7.07 17.07"/>
+    <path d="M12 2a10 10 0 0 0-7.07 17.07"/>
+    <path d="M12 6a6 6 0 0 1 4.24 10.24"/>
+    <path d="M12 6a6 6 0 0 0-4.24 10.24"/>
+  </svg>
+)
+
 export const EyeOffIcon = () => (
   <svg {...props()}>
     <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/>

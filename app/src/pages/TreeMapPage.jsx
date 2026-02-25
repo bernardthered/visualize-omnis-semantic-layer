@@ -187,6 +187,20 @@ export default function TreeMapPage() {
           }
 
           // Tooltip
+          function formatFilters(filters) {
+            if (!filters || typeof filters !== 'object') return ''
+            return Object.entries(filters).map(([field, cond]) => {
+              if (cond && typeof cond === 'object') {
+                const parts = Object.entries(cond).map(([op, val]) => {
+                  const valStr = Array.isArray(val) ? '[' + val.join(', ') + ']' : String(val)
+                  return `${op}: ${valStr}`
+                })
+                return `${field} → ${parts.join(', ')}`
+              }
+              return `${field}: ${String(cond)}`
+            }).join('\n')
+          }
+
           cell.on('mousemove', (event, d) => {
             const orig = d.data._orig || d.data
             const rows = []
@@ -200,6 +214,16 @@ export default function TreeMapPage() {
             if (orig.format)     rows.push(`<div class="tt-row"><b>Format:</b> ${orig.format}</div>`)
             if (orig.sql)        rows.push(`<div class="tt-row"><b>SQL:</b> <code>${orig.sql}</code></div>`)
             if (orig._schema)    rows.push(`<div class="tt-row"><b>Schema:</b> ${orig._schema}</div>`)
+            // Topic metadata
+            if (orig.description) rows.push(`<div class="tt-row"><b>Description:</b> ${orig.description}</div>`)
+            if (orig.display_order !== undefined && orig.display_order !== null)
+              rows.push(`<div class="tt-row"><b>Display order:</b> ${orig.display_order}</div>`)
+            if (orig.default_filters)
+              rows.push(`<div class="tt-row"><b>Default filters:</b><br><code style="white-space:pre">${formatFilters(orig.default_filters)}</code></div>`)
+            if (orig.ai_context_chars)
+              rows.push(`<div class="tt-row"><b>AI context:</b> ${orig.ai_context_chars} chars</div>`)
+            if (orig.sample_queries_chars)
+              rows.push(`<div class="tt-row"><b>Sample queries:</b> ${orig.sample_queries_chars} chars</div>`)
             tooltipEl.innerHTML = `<div class="tt-title">${d.data.label || d.data.name}</div>${rows.join('')}`
             tooltipEl.classList.add('visible')
             const rect = chartEl.getBoundingClientRect()

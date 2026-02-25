@@ -97,8 +97,8 @@ export default function CollapsibleTreePage() {
         }
         function deepClone(obj) { return JSON.parse(JSON.stringify(obj)) }
         function enrichRefs(sectionNode) {
-          ;(sectionNode.children || []).forEach(parent => {
-            ;(parent.children || []).forEach(ref => {
+          function enrichTopicRefs(topicNode) {
+            ;(topicNode.children || []).forEach(ref => {
               if (!ref.children) {
                 const vd = findViewData(ref.name)
                 if (vd?.children?.length) {
@@ -110,6 +110,13 @@ export default function CollapsibleTreePage() {
                 }
               }
             })
+          }
+          ;(sectionNode.children || []).forEach(child => {
+            if (child._group) {
+              ;(child.children || []).forEach(enrichTopicRefs)
+            } else {
+              enrichTopicRefs(child)
+            }
           })
         }
 
@@ -243,6 +250,20 @@ export default function CollapsibleTreePage() {
         updateFnRef.current = update
 
         // ── Tooltip ───────────────────────────────────────
+        function formatFilters(filters) {
+          if (!filters || typeof filters !== 'object') return ''
+          return Object.entries(filters).map(([field, cond]) => {
+            if (cond && typeof cond === 'object') {
+              const parts = Object.entries(cond).map(([op, val]) => {
+                const valStr = Array.isArray(val) ? '[' + val.join(', ') + ']' : String(val)
+                return `${op}: ${valStr}`
+              })
+              return `${field} → ${parts.join(', ')}`
+            }
+            return `${field}: ${String(cond)}`
+          }).join('\n')
+        }
+
         function showTooltip(event, d) {
           const dt = d.data
           const rows = []
@@ -255,6 +276,16 @@ export default function CollapsibleTreePage() {
           if (dt.field_type) rows.push(`<div class="tt-row"><b>Type:</b> ${dt.field_type}</div>`)
           if (dt.aggregate_type) rows.push(`<div class="tt-row"><b>Aggregate:</b> ${dt.aggregate_type}</div>`)
           if (dt.sql)        rows.push(`<div class="tt-row"><b>SQL:</b> <code>${dt.sql}</code></div>`)
+          // Topic metadata
+          if (dt.description) rows.push(`<div class="tt-row"><b>Description:</b> ${dt.description}</div>`)
+          if (dt.display_order !== undefined && dt.display_order !== null)
+            rows.push(`<div class="tt-row"><b>Display order:</b> ${dt.display_order}</div>`)
+          if (dt.default_filters)
+            rows.push(`<div class="tt-row"><b>Default filters:</b><br><code style="white-space:pre">${formatFilters(dt.default_filters)}</code></div>`)
+          if (dt.ai_context_chars)
+            rows.push(`<div class="tt-row"><b>AI context:</b> ${dt.ai_context_chars} chars</div>`)
+          if (dt.sample_queries_chars)
+            rows.push(`<div class="tt-row"><b>Sample queries:</b> ${dt.sample_queries_chars} chars</div>`)
           const hidden = d._children?.length || 0
           if (hidden) rows.push(`<div class="tt-row"><b>Hidden children:</b> ${hidden}</div>`)
           tooltipEl.innerHTML = `<div class="tt-title">${dt.label || dt.name}</div>${rows.join('')}`
@@ -337,9 +368,21 @@ export default function CollapsibleTreePage() {
         if (!topicsH.children && topicsH._children) {
           topicsH.children = topicsH._children; topicsH._children = null
         }
-        topicsH.children.forEach(topicH => {
-          if (!topicH.children && topicH._children) {
-            topicH.children = topicH._children; topicH._children = null
+        topicsH.children.forEach(child => {
+          if (child.data._group) {
+            // Expand the group node, then expand each topic within it
+            if (!child.children && child._children) {
+              child.children = child._children; child._children = null
+            }
+            ;(child.children || []).forEach(topicH => {
+              if (!topicH.children && topicH._children) {
+                topicH.children = topicH._children; topicH._children = null
+              }
+            })
+          } else {
+            if (!child.children && child._children) {
+              child.children = child._children; child._children = null
+            }
           }
         })
       }

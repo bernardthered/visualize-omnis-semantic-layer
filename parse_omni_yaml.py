@@ -60,12 +60,37 @@ def parse_topic_file(path: str) -> dict | None:
     joins_dict = data.get("joins") or {}
     joined_views = flatten_joins(joins_dict)
 
-    return {
+    result = {
         "name": topic_name,
         "label": label,
         "base_view": base_view,
         "joined_views": joined_views,
     }
+
+    # Optional string fields
+    for key in ("group_label", "description"):
+        val = data.get(key)
+        if val:
+            result[key] = val
+
+    if data.get("display_order") is not None:
+        result["display_order"] = data["display_order"]
+
+    if data.get("default_filters"):
+        result["default_filters"] = data["default_filters"]
+
+    # Character counts for large text blobs
+    ai_context = data.get("ai_context") or ""
+    if ai_context:
+        result["ai_context_chars"] = len(ai_context)
+
+    sample_queries = data.get("sample_queries") or ""
+    if isinstance(sample_queries, list):
+        sample_queries = "\n".join(str(q) for q in sample_queries)
+    if sample_queries:
+        result["sample_queries_chars"] = len(sample_queries)
+
+    return result
 
 
 def parse_view_file(path: str) -> dict | None:
@@ -150,21 +175,43 @@ def build_treemap(omni_root: str) -> dict:
                 topics.append(topic)
 
     # ── Topics section ───────────────────────────────────────────────────────
-    # Each topic's children: the base_view ref + one ref per joined view
-    topic_nodes = []
-    for topic in sorted(topics, key=lambda t: t["name"]):
-        children = [
-            {"name": topic["base_view"], "value": 1, "ref_type": "base_view"},
-        ]
+    # Each topic's children: the base_view ref + one ref per joined view.
+    # Topics with a group_label are nested under a parent group node.
+    def make_topic_node(topic: dict) -> dict:
+        children = [{"name": topic["base_view"], "value": 1, "ref_type": "base_view"}]
         for jv in topic["joined_views"]:
             children.append({"name": jv, "value": 1, "ref_type": "join"})
-
-        topic_nodes.append({
+        node: dict = {
             "name": topic["name"],
             "label": topic["label"],
             "base_view": topic["base_view"],
             "children": children,
+        }
+        for field in ("description", "display_order", "default_filters",
+                      "ai_context_chars", "sample_queries_chars"):
+            if field in topic:
+                node[field] = topic[field]
+        return node
+
+    groups: dict[str, list] = {}
+    ungrouped: list = []
+    for topic in sorted(topics, key=lambda t: t["name"]):
+        gl = topic.get("group_label")
+        if gl:
+            groups.setdefault(gl, []).append(topic)
+        else:
+            ungrouped.append(topic)
+
+    topic_nodes = []
+    for group_name in sorted(groups):
+        topic_nodes.append({
+            "name": group_name,
+            "label": group_name,
+            "_group": True,
+            "children": [make_topic_node(t) for t in groups[group_name]],
         })
+    for topic in ungrouped:
+        topic_nodes.append(make_topic_node(topic))
 
     # ── Joins section ────────────────────────────────────────────────────────
     # Only include topics that actually have joins; children are join refs
@@ -236,7 +283,13 @@ def main():
     joins_node  = next((c for c in treemap["children"] if c["name"] == "joins"),  None)
     views_node  = next((c for c in treemap["children"] if c["name"] == "views"),  None)
 
-    total_topics  = len(topics_node["children"]) if topics_node else 0
+    if topics_node:
+        total_topics = sum(
+            len(child["children"]) if child.get("_group") else 1
+            for child in topics_node["children"]
+        )
+    else:
+        total_topics = 0
     total_schemas = len(views_node["children"])  if views_node  else 0
     total_views   = sum(len(s["children"]) for s in (views_node["children"] if views_node else []))
     total_joins   = sum(len(j["children"]) for j in (joins_node["children"]  if joins_node else []))
