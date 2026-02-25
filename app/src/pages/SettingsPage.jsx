@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
-import { SettingsIcon, LayersIcon } from '../components/icons'
+import { SettingsIcon, LayersIcon, EyeIcon, EyeOffIcon } from '../components/icons'
 import styles from './SettingsPage.module.css'
 
 const DEFAULT_BRAND = 'Omni'
 
 export default function SettingsPage({ brandName, setBrandName, logoUrl, setLogoUrl }) {
-  // ── Brand name draft ──
+
+  // ── Brand name draft ──────────────────────────────────────────────────────
   const [nameDraft, setNameDraft] = useState(brandName)
   const isNameDirty   = nameDraft !== brandName
   const isNameDefault = brandName === DEFAULT_BRAND
@@ -22,12 +23,11 @@ export default function SettingsPage({ brandName, setBrandName, logoUrl, setLogo
     setBrandName(DEFAULT_BRAND)
   }
 
-  // ── Logo URL draft ──
-  const [urlDraft, setUrlDraft]       = useState(logoUrl)
+  // ── Logo URL draft ────────────────────────────────────────────────────────
+  const [urlDraft, setUrlDraft]         = useState(logoUrl)
   const [previewError, setPreviewError] = useState(false)
   const isUrlDirty = urlDraft !== logoUrl
 
-  // Reset preview error whenever the draft URL changes
   useEffect(() => { setPreviewError(false) }, [urlDraft])
 
   function handleUrlSave(e) {
@@ -38,6 +38,32 @@ export default function SettingsPage({ brandName, setBrandName, logoUrl, setLogo
   function handleUrlClear() {
     setUrlDraft('')
     setLogoUrl('')
+  }
+
+  // ── Credentials ───────────────────────────────────────────────────────────
+  const [userDraft, setUserDraft] = useState(
+    () => localStorage.getItem('authUsername') || 'admin'
+  )
+  const [passDraft, setPassDraft]   = useState('')
+  const [showPass,  setShowPass]    = useState(false)
+  const [credSaved, setCredSaved]   = useState(false)
+
+  const currentUser    = localStorage.getItem('authUsername') || 'admin'
+  const isUserDirty    = userDraft.trim() !== currentUser
+  const isPassDirty    = passDraft.length > 0
+  const isCredsDirty   = isUserDirty || isPassDirty
+
+  function handleCredsSave(e) {
+    e.preventDefault()
+    const newUser = userDraft.trim() || currentUser
+    setUserDraft(newUser)
+    localStorage.setItem('authUsername', newUser)
+    if (passDraft) {
+      localStorage.setItem('authPassword', passDraft)
+      setPassDraft('')
+    }
+    setCredSaved(true)
+    setTimeout(() => setCredSaved(false), 3000)
   }
 
   return (
@@ -54,7 +80,7 @@ export default function SettingsPage({ brandName, setBrandName, logoUrl, setLogo
 
       <div className={styles.sections}>
 
-        {/* ── Appearance ── */}
+        {/* ── Appearance ───────────────────────────────────────────────────── */}
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Appearance</h2>
 
@@ -107,7 +133,6 @@ export default function SettingsPage({ brandName, setBrandName, logoUrl, setLogo
               <span className={styles.labelHint}>Public image URL shown next to the brand name</span>
             </label>
             <div className={styles.logoRow}>
-              {/* Live preview */}
               <div className={styles.logoPreview} title="Preview">
                 {urlDraft && !previewError
                   ? <img
@@ -155,7 +180,71 @@ export default function SettingsPage({ brandName, setBrandName, logoUrl, setLogo
               <p className={styles.savedNote}>✓ Custom logo active</p>
             )}
           </div>
+        </section>
 
+        {/* ── Security ─────────────────────────────────────────────────────── */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Security</h2>
+          <p className={styles.sectionDesc}>
+            Change the login credentials for this browser. Leave the password blank to keep the current one.
+          </p>
+
+          <form className={styles.credForm} onSubmit={handleCredsSave}>
+            {/* Username */}
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="cred-username">Username</label>
+              <input
+                id="cred-username"
+                className={styles.input}
+                type="text"
+                value={userDraft}
+                maxLength={64}
+                autoComplete="username"
+                onChange={e => { setUserDraft(e.target.value); setCredSaved(false) }}
+              />
+            </div>
+
+            {/* Password */}
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="cred-password">
+                New password
+                <span className={styles.labelHint}>Leave blank to keep current</span>
+              </label>
+              <div className={styles.passwordRow}>
+                <input
+                  id="cred-password"
+                  className={`${styles.input} ${styles.inputFlex}`}
+                  type={showPass ? 'text' : 'password'}
+                  value={passDraft}
+                  maxLength={128}
+                  autoComplete="new-password"
+                  placeholder="New password"
+                  onChange={e => { setPassDraft(e.target.value); setCredSaved(false) }}
+                />
+                <button
+                  type="button"
+                  className={styles.eyeBtn}
+                  onClick={() => setShowPass(s => !s)}
+                  title={showPass ? 'Hide password' : 'Show password'}
+                >
+                  {showPass ? <EyeOffIcon /> : <EyeIcon />}
+                </button>
+              </div>
+            </div>
+
+            <div className={styles.credFooter}>
+              <button
+                type="submit"
+                className={`${styles.btn} ${styles.btnPrimary}`}
+                disabled={!isCredsDirty}
+              >
+                Save credentials
+              </button>
+              {credSaved && (
+                <p className={styles.savedNote} style={{ margin: 0 }}>✓ Credentials updated</p>
+              )}
+            </div>
+          </form>
         </section>
 
       </div>

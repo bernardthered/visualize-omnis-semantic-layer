@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
+import LoginPage from './pages/LoginPage'
 import PlaceholderPage from './pages/PlaceholderPage'
 import SettingsPage from './pages/SettingsPage'
 import TreeMapPage from './pages/TreeMapPage'
@@ -18,6 +19,9 @@ export default function App() {
   const [logoUrl, setLogoUrl] = useState(() =>
     localStorage.getItem('logoUrl') || ''
   )
+  const [isAuthenticated, setIsAuthenticated] = useState(() =>
+    localStorage.getItem('isAuthenticated') === 'true'
+  )
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light')
@@ -32,6 +36,27 @@ export default function App() {
     localStorage.setItem('logoUrl', logoUrl)
   }, [logoUrl])
 
+  function login(username, password) {
+    const storedUser = localStorage.getItem('authUsername') || 'admin'
+    const storedPass = localStorage.getItem('authPassword') || 'password'
+    if (username === storedUser && password === storedPass) {
+      localStorage.setItem('isAuthenticated', 'true')
+      setIsAuthenticated(true)
+      return true
+    }
+    return false
+  }
+
+  function logout() {
+    localStorage.removeItem('isAuthenticated')
+    setIsAuthenticated(false)
+  }
+
+  // ── Show login page until authenticated ──
+  if (!isAuthenticated) {
+    return <LoginPage onLogin={login} brandName={brandName} logoUrl={logoUrl} />
+  }
+
   return (
     <BrowserRouter>
       <Layout
@@ -41,6 +66,7 @@ export default function App() {
         setCollapsed={setSidebarCollapsed}
         brandName={brandName}
         logoUrl={logoUrl}
+        logout={logout}
       >
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />

@@ -4,7 +4,7 @@ import {
   HomeIcon, BarChartIcon, FileTextIcon, UsersIcon, SettingsIcon,
   LayersIcon, GridIcon, TreeIcon,
   ChevronLeftIcon, ChevronRightIcon, ChevronDownIcon,
-  MoonIcon, SunIcon,
+  MoonIcon, SunIcon, LogOutIcon,
 } from './icons'
 import styles from './Sidebar.module.css'
 
@@ -23,7 +23,7 @@ const NAV = [
   },
 ]
 
-export default function Sidebar({ collapsed, setCollapsed, darkMode, setDarkMode, brandName = 'Omni', logoUrl = '' }) {
+export default function Sidebar({ collapsed, setCollapsed, darkMode, setDarkMode, brandName = 'Omni', logoUrl = '', logout }) {
   const location = useLocation()
   const [imgError, setImgError] = useState(false)
   const [openMenus, setOpenMenus] = useState(() => {
@@ -136,7 +136,7 @@ export default function Sidebar({ collapsed, setCollapsed, darkMode, setDarkMode
         ))}
       </nav>
 
-      {/* ── Footer: dark mode toggle ── */}
+      {/* ── Footer: dark mode toggle + sign out ── */}
       <div className={styles.footer}>
         <div className={`${styles.themeToggle} ${collapsed ? styles.iconOnly : ''}`}>
           {!collapsed && (
@@ -156,6 +156,15 @@ export default function Sidebar({ collapsed, setCollapsed, darkMode, setDarkMode
             </span>
           </button>
         </div>
+
+        <button
+          className={`${styles.signOutBtn} ${collapsed ? styles.iconOnly : ''}`}
+          onClick={logout}
+          title="Sign out"
+        >
+          <span className={styles.navIcon}><LogOutIcon /></span>
+          {!collapsed && <span className={styles.navLabel}>Sign out</span>}
+        </button>
       </div>
     </aside>
   )
