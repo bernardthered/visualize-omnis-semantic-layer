@@ -24,8 +24,12 @@ function omniEmbedPlugin() {
       server.middlewares.use('/api/embed-url', async (req, res) => {
         try {
           const qs = new URL(req.url, 'http://localhost').searchParams
-          const contentId   = qs.get('contentId')   || '8768d51b'
-          const prefersDark = qs.get('prefersDark') || 'system'
+          const contentId   = qs.get('contentId') || '8768d51b'
+          // Only pass prefersDark when explicitly true — the SDK includes ANY
+          // truthy string in the signed URL, so passing 'false' or 'system'
+          // sends an invalid value that Omni rejects with a CSS error.
+          // Omitting the prop lets Omni fall back to its own default.
+          const prefersDark = qs.get('prefersDark') === 'true' ? 'true' : undefined
 
           const secret = env.OMNI_EMBED_SECRET
           if (!secret) {
@@ -42,7 +46,7 @@ function omniEmbedPlugin() {
             name:       env.OMNI_EMBED_NAME         || 'Embed User',
             host:       env.OMNI_EMBED_HOST,
             secret,
-            prefersDark,
+            ...(prefersDark && { prefersDark }),
           }
 
           // Path-style content IDs (starting with /) use embedSsoContentDiscovery
