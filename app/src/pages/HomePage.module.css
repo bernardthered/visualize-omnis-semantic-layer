@@ -1,0 +1,82 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 72px 48px 56px;
+  gap: 52px;
+  min-height: 100%;
+}
+
+/* ── Hero ── */
+.hero {
+  text-align: center;
+  max-width: 560px;
+}
+
+.heading {
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 14px;
+  line-height: 1.3;
+  letter-spacing: -0.3px;
+}
+
+.brand {
+  color: var(--accent, #7c8cf8);
+}
+
+.tagline {
+  font-size: 15px;
+  color: var(--text-secondary, #64748b);
+  margin: 0;
+  line-height: 1.7;
+}
+
+/* ── Quick-link grid ── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 16px;
+  width: 100%;
+  max-width: 900px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 22px 20px;
+  border-radius: 12px;
+  background: var(--surface, #1e293b);
+  border: 1px solid var(--border, #334155);
+  text-decoration: none;
+  color: var(--text);
+  transition: background 0.15s, border-color 0.15s, transform 0.12s;
+}
+
+.card:hover {
+  background: var(--surface-hover, #273449);
+  border-color: var(--accent, #7c8cf8);
+  transform: translateY(-2px);
+}
+
+.cardIcon {
+  display: flex;
+  align-items: center;
+  color: var(--accent, #7c8cf8);
+  opacity: 0.9;
+}
+
+.cardLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.cardDesc {
+  font-size: 12px;
+  color: var(--text-secondary, #64748b);
+  line-height: 1.5;
+}

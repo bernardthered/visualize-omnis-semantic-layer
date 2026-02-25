@@ -10,6 +10,7 @@ import TreeMapPage from './pages/TreeMapPage'
 import CollapsibleTreePage from './pages/CollapsibleTreePage'
 import SunburstPage from './pages/SunburstPage'
 import AiAnalystPage from './pages/AiAnalystPage'
+import HomePage from './pages/HomePage'
 
 export default function App() {
   const [darkMode, setDarkMode] = useState(() => {
@@ -85,7 +86,8 @@ export default function App() {
         logout={logout}
       >
         <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/" element={<Navigate to="/home" replace />} />
+          <Route path="/home" element={<HomePage brandName={brandName} />} />
           <Route path="/dashboard" element={<DashboardPage darkMode={darkMode} />} />
           <Route path="/analytics" element={
             <PlaceholderPage title="Analytics" icon="analytics"

@@ -155,6 +155,14 @@ export const SunburstIcon = () => (
   </svg>
 )
 
+export const LayoutIcon = () => (
+  <svg {...props()}>
+    <rect x="3" y="3" width="18" height="18" rx="2"/>
+    <line x1="3" y1="9" x2="21" y2="9"/>
+    <line x1="9" y1="21" x2="9" y2="9"/>
+  </svg>
+)
+
 export const EyeOffIcon = () => (
   <svg {...props()}>
     <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/>

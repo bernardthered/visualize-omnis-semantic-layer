@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import {
-  HomeIcon, BarChartIcon, FileTextIcon, UsersIcon, SettingsIcon,
+  HomeIcon, LayoutIcon, BarChartIcon, FileTextIcon, UsersIcon, SettingsIcon,
   LayersIcon, GridIcon, TreeIcon, SunburstIcon, AiChatIcon,
   ChevronLeftIcon, ChevronRightIcon, ChevronDownIcon,
   MoonIcon, SunIcon, LogOutIcon,
@@ -9,7 +9,8 @@ import {
 import styles from './Sidebar.module.css'
 
 const NAV = [
-  { id: 'dashboard', label: 'Dashboard', icon: HomeIcon,      path: '/dashboard' },
+  { id: 'home',      label: 'Home',      icon: HomeIcon,      path: '/home'      },
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutIcon,    path: '/dashboard' },
   { id: 'analytics', label: 'Analytics', icon: BarChartIcon,  path: '/analytics' },
   { id: 'reports',   label: 'Reports',   icon: FileTextIcon,  path: '/reports'   },
   { id: 'users',     label: 'Users',     icon: UsersIcon,     path: '/users'     },
