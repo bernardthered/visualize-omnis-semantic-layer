@@ -45,9 +45,10 @@ function omniEmbedPlugin() {
             prefersDark,
           }
 
-          // /chat/<uuid> paths use embedSsoContentDiscovery (raw path, no prefix);
-          // everything else uses embedSsoDashboard (/dashboards/<id>).
-          const iframeUrl = contentId.startsWith('/chat/')
+          // Path-style content IDs (starting with /) use embedSsoContentDiscovery
+          // so the SDK doesn't prepend /dashboards/.  Bare IDs (UUIDs, etc.) use
+          // embedSsoDashboard as before.
+          const iframeUrl = contentId.startsWith('/')
             ? await embedSsoContentDiscovery({ ...sharedProps, path: contentId })
             : await embedSsoDashboard({ ...sharedProps, contentId })
 

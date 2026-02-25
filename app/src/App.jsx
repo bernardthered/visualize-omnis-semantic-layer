@@ -10,6 +10,7 @@ import TreeMapPage from './pages/TreeMapPage'
 import CollapsibleTreePage from './pages/CollapsibleTreePage'
 import SunburstPage from './pages/SunburstPage'
 import AiAnalystPage from './pages/AiAnalystPage'
+import WorkbookPage from './pages/WorkbookPage'
 import HomePage from './pages/HomePage'
 
 export default function App() {
@@ -108,6 +109,7 @@ export default function App() {
             />
           } />
           <Route path="/ai-analyst" element={<AiAnalystPage darkMode={darkMode} />} />
+          <Route path="/workbook"   element={<WorkbookPage  darkMode={darkMode} />} />
           <Route path="/semantic-layer/treemap"   element={<TreeMapPage />} />
           <Route path="/semantic-layer/tree"      element={<CollapsibleTreePage />} />
           <Route path="/semantic-layer/sunburst"  element={<SunburstPage />} />

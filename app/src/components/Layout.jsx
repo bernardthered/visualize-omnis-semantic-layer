@@ -7,6 +7,7 @@ export default function Layout({ children, darkMode, setDarkMode, collapsed, set
   const isEmbed = location.pathname.startsWith('/semantic-layer')
                || location.pathname === '/dashboard'
                || location.pathname === '/ai-analyst'
+               || location.pathname === '/workbook'
 
   return (
     <div className={styles.layout}>
