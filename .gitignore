@@ -7,3 +7,5 @@ __pycache__/
 app/node_modules/
 app/dist/
 .env.local
+omni_data/
+

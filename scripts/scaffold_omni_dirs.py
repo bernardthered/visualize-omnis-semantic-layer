@@ -34,11 +34,21 @@ def fetch_connections(client: OmniApiClient) -> list[dict]:
     return response.get("connections", response.get("data", []))
 
 
-def fetch_topics(client: OmniApiClient, model_id: str) -> list[dict]:
-    """Fetch topics from the model's YAML files (the /topic REST endpoint is broken)."""
+def fetch_model_yaml_files(client: OmniApiClient, model_id: str) -> dict[str, str]:
+    """Fetch all YAML files for a model, returning a dict of filename → yaml content."""
     response = client.get(f"/v1/models/{model_id}/yaml")
-    files = response.get("files", {}) if isinstance(response, dict) else {}
+    return response.get("files", {}) if isinstance(response, dict) else {}
 
+
+def fetch_relationships(client: OmniApiClient, model_id: str) -> str:
+    """Fetch just the relationships YAML for a model."""
+    response = client.get(f"/v1/models/{model_id}/yaml", params={"fileName": "relationships"})
+    files = response.get("files", {}) if isinstance(response, dict) else {}
+    return files.get("relationships", "")
+
+
+def extract_topics(files: dict[str, str]) -> list[dict]:
+    """Extract and parse topic definitions from a model's YAML files dict."""
     topics = []
     for key, yaml_str in files.items():
         if not key.endswith(".topic"):
@@ -47,12 +57,21 @@ def fetch_topics(client: OmniApiClient, model_id: str) -> list[dict]:
             topic_data = yaml.safe_load(yaml_str) or {}
         except yaml.YAMLError:
             topic_data = {}
-        # Derive topic name from the file key: strip .topic, take the basename
         topic_data.setdefault("name", key.removesuffix(".topic").split("/")[-1])
         topic_data["_yaml_key"] = key
         topics.append(topic_data)
-
     return topics
+
+
+def extract_views(files: dict[str, str]) -> list[dict]:
+    """Extract view definitions from a model's YAML files dict."""
+    views = []
+    for key, yaml_str in files.items():
+        if not key.endswith(".view"):
+            continue
+        view_name = key.removesuffix(".view").split("/")[-1]
+        views.append({"name": view_name, "_yaml_key": key, "_yaml": yaml_str})
+    return views
 
 
 def fetch_models(client: OmniApiClient) -> list[dict]:
@@ -110,19 +129,40 @@ def build_directory_tree(
             (model_dir / "info.json").write_text(json.dumps(model, indent=2))
             print(f"    {model_name}  →  {model_dir}/")
 
-            topics = fetch_topics(client, model_id)
+            yaml_files = fetch_model_yaml_files(client, model_id)
+
+            # relationships.yaml
+            relationships_yaml = fetch_relationships(client, model_id)
+            if relationships_yaml:
+                (model_dir / "relationships.yaml").write_text(relationships_yaml)
+                print(f"      relationships.yaml")
+
+            # views/
+            views = extract_views(yaml_files)
+            if views:
+                views_dir = model_dir / "views"
+                views_dir.mkdir(exist_ok=True)
+                for view in views:
+                    view_file = views_dir / f"{sanitize(view['name'])}.yaml"
+                    view_file.write_text(view["_yaml"])
+                print(f"      views/  ({len(views)} view(s))")
+
+            # topics/
+            topics = extract_topics(yaml_files)
             if not topics:
                 print("      (no topics)")
                 continue
 
+            topics_dir = model_dir / "topics"
+            topics_dir.mkdir(exist_ok=True)
             for topic in topics:
                 topic_name = topic.get("name") or "unknown"
-                topic_dir = model_dir / sanitize(topic_name)
+                topic_dir = topics_dir / sanitize(topic_name)
                 topic_dir.mkdir(exist_ok=True)
                 (topic_dir / "info.json").write_text(json.dumps(topic, indent=2))
                 label = topic.get("label") or topic_name
                 hidden = " [hidden]" if topic.get("hidden") else ""
-                print(f"      {label}{hidden}  →  {topic_dir}/")
+                print(f"      topics/{sanitize(topic_name)}/  ({label}{hidden})")
 
 
 def main():
