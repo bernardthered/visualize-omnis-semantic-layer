@@ -11,9 +11,12 @@ Environment variables:
 """
 
 import argparse
+import json
 import os
 import sys
 from pathlib import Path
+
+import yaml
 
 from omni import OmniApiClient
 
@@ -29,6 +32,27 @@ def fetch_connections(client: OmniApiClient) -> list[dict]:
     if isinstance(response, list):
         return response
     return response.get("connections", response.get("data", []))
+
+
+def fetch_topics(client: OmniApiClient, model_id: str) -> list[dict]:
+    """Fetch topics from the model's YAML files (the /topic REST endpoint is broken)."""
+    response = client.get(f"/v1/models/{model_id}/yaml")
+    files = response.get("files", {}) if isinstance(response, dict) else {}
+
+    topics = []
+    for key, yaml_str in files.items():
+        if not key.endswith(".topic"):
+            continue
+        try:
+            topic_data = yaml.safe_load(yaml_str) or {}
+        except yaml.YAMLError:
+            topic_data = {}
+        # Derive topic name from the file key: strip .topic, take the basename
+        topic_data.setdefault("name", key.removesuffix(".topic").split("/")[-1])
+        topic_data["_yaml_key"] = key
+        topics.append(topic_data)
+
+    return topics
 
 
 def fetch_models(client: OmniApiClient) -> list[dict]:
@@ -58,7 +82,12 @@ def fetch_models_and_connections(client: OmniApiClient) -> tuple[list[dict], dic
     return connections, models_by_connection
 
 
-def build_directory_tree(root: Path, connections: list[dict], models_by_connection: dict[str, list[dict]]) -> None:
+def build_directory_tree(
+    client: OmniApiClient,
+    root: Path,
+    connections: list[dict],
+    models_by_connection: dict[str, list[dict]],
+) -> None:
     root.mkdir(parents=True, exist_ok=True)
 
     for conn in connections:
@@ -74,12 +103,26 @@ def build_directory_tree(root: Path, connections: list[dict], models_by_connecti
             continue
 
         for model in conn_models:
-            model_name = model.get("name") or model.get("id") or "unknown"
+            model_id = model.get("id", "")
+            model_name = model.get("name") or model_id or "unknown"
             model_dir = conn_dir / sanitize(model_name)
             model_dir.mkdir(exist_ok=True)
-            # output an info.json with the model metadata
-            (model_dir / "info.json").write_text(str(model))
+            (model_dir / "info.json").write_text(json.dumps(model, indent=2))
             print(f"    {model_name}  →  {model_dir}/")
+
+            topics = fetch_topics(client, model_id)
+            if not topics:
+                print("      (no topics)")
+                continue
+
+            for topic in topics:
+                topic_name = topic.get("name") or "unknown"
+                topic_dir = model_dir / sanitize(topic_name)
+                topic_dir.mkdir(exist_ok=True)
+                (topic_dir / "info.json").write_text(json.dumps(topic, indent=2))
+                label = topic.get("label") or topic_name
+                hidden = " [hidden]" if topic.get("hidden") else ""
+                print(f"      {label}{hidden}  →  {topic_dir}/")
 
 
 def main():
@@ -100,7 +143,7 @@ def main():
     root = Path(args.output_dir, org)
 
     connections, models_by_connection = fetch_models_and_connections(client)
-    build_directory_tree(root, connections, models_by_connection)
+    build_directory_tree(client, root, connections, models_by_connection)
 
     print(f"\nDone. Directory tree written to: {root.resolve()}")
 
