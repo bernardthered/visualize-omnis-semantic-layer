@@ -77,6 +77,8 @@ def build_directory_tree(root: Path, connections: list[dict], models_by_connecti
             model_name = model.get("name") or model.get("id") or "unknown"
             model_dir = conn_dir / sanitize(model_name)
             model_dir.mkdir(exist_ok=True)
+            # output an info.json with the model metadata
+            (model_dir / "info.json").write_text(str(model))
             print(f"    {model_name}  →  {model_dir}/")
 
 
